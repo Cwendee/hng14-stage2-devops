@@ -79,3 +79,9 @@ File: docker-compose.yml
 Issue: Use of deploy.resources caused instability and Redis container exit in non-swarm mode  
 Impact: Redis container stopped unexpectedly  
 Fix: Removed deploy section and relied on standard docker-compose configuration
+
+14.
+File: Dockerfiles  
+Issue: Dockerfiles did not follow best practices (apt usage, caching, non-root execution)  
+Impact: Failed Hadolint checks in CI pipeline  
+Fix: Refactored Dockerfiles to use minimal layers, non-root user, and proper package installation
