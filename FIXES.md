@@ -91,3 +91,9 @@ File: CI Pipeline (ci.yml)
 Issue: Hadolint failed due to non-existent frontend/Dockerfile  
 Impact: CI pipeline failed during Dockerfile lint stage  
 Fix: Removed frontend/Dockerfile from hadolint check
+
+16.
+File: CI Pipeline  
+Issue: No deployment stage  
+Impact: Pipeline incomplete for delivery  
+Fix: Added rolling update deployment using Docker Compose with service-level updates
