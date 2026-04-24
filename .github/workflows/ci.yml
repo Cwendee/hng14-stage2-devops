@@ -33,8 +33,7 @@ jobs:
       # Lint (Python)
       # -------------------------
       - name: Lint Python
-        run: |
-          flake8 api worker
+        run: flake8 api worker
 
       # -------------------------
       # Test (pytest)
@@ -78,22 +77,19 @@ jobs:
           ignore: DL3008
 
       # -------------------------
-      # BUILD STAGE (Docker)
+      # BUILD STAGE
       # -------------------------
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Start local registry
-        run: |
-          docker run -d -p 5000:5000 --name registry registry:2
+        run: docker run -d -p 5000:5000 --name registry registry:2
 
       - name: Build API image
-        run: |
-          docker build -t localhost:5000/api:${{ github.sha }} -t localhost:5000/api:latest ./api
+        run: docker build -t localhost:5000/api:${{ github.sha }} -t localhost:5000/api:latest ./api
 
       - name: Build Worker image
-        run: |
-          docker build -t localhost:5000/worker:${{ github.sha }} -t localhost:5000/worker:latest ./worker
+        run: docker build -t localhost:5000/worker:${{ github.sha }} -t localhost:5000/worker:latest ./worker
 
       - name: Push API image
         run: |
@@ -118,9 +114,46 @@ jobs:
           sudo apt-get install -y trivy
 
       - name: Scan API image
-        run: |
-          trivy image --exit-code 1 --severity CRITICAL localhost:5000/api:${{ github.sha }}
+        run: trivy image --exit-code 1 --severity CRITICAL localhost:5000/api:${{ github.sha }}
 
       - name: Scan Worker image
+        run: trivy image --exit-code 1 --severity CRITICAL localhost:5000/worker:${{ github.sha }}
+
+      # -------------------------
+      # INTEGRATION TEST
+      # -------------------------
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Start full stack
+        run: docker-compose up -d --build
+
+      - name: Wait for API
         run: |
-          trivy image --exit-code 1 --severity CRITICAL localhost:5000/worker:${{ github.sha }}
+          for i in {1..20}; do
+            curl -s http://localhost:8000/docs && break
+            sleep 3
+          done
+
+      - name: Submit job
+        id: job
+        run: |
+          JOB_ID=$(curl -s -X POST http://localhost:8000/jobs | jq -r '.job_id')
+          echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
+
+      - name: Wait for completion
+        run: |
+          for i in {1..20}; do
+            STATUS=$(curl -s http://localhost:8000/jobs/${{ steps.job.outputs.job_id }} | jq -r '.status')
+            if [ "$STATUS" = "completed" ]; then
+              echo "Job completed"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Job failed"
+          exit 1
+
+      - name: Shutdown stack
+        if: always()
+        run: docker-compose down
