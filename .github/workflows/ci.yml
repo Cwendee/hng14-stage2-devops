@@ -22,7 +22,7 @@ jobs:
           python-version: "3.11"
 
       # -------------------------
-      # Install ALL dependencies
+      # Install Dependencies
       # -------------------------
       - name: Install dependencies
         run: |
@@ -30,19 +30,19 @@ jobs:
           pip install pytest httpx flake8
 
       # -------------------------
-      # LINT (Python)
+      # Lint (Python)
       # -------------------------
       - name: Lint Python
         run: |
           flake8 api worker
 
       # -------------------------
-      # TEST (pytest)
+      # Test (pytest) ✅ FIXED
       # -------------------------
       - name: Run API tests
         run: |
           cd api
-          pytest --maxfail=1 --disable-warnings -q
+          PYTHONPATH=. pytest --maxfail=1 --disable-warnings -q
 
       # -------------------------
       # Node.js + ESLint
