@@ -104,3 +104,23 @@ jobs:
         run: |
           docker push localhost:5000/worker:${{ github.sha }}
           docker push localhost:5000/worker:latest
+
+      # -------------------------
+      # SECURITY SCAN (Trivy)
+      # -------------------------
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Scan API image
+        run: |
+          trivy image --exit-code 1 --severity CRITICAL localhost:5000/api:${{ github.sha }}
+
+      - name: Scan Worker image
+        run: |
+          trivy image --exit-code 1 --severity CRITICAL localhost:5000/worker:${{ github.sha }}
