@@ -1,12 +1,13 @@
-from fastapi.testclient import TestClient
-from unittest.mock import MagicMock
 import sys
 import os
 
-# Fix import path AFTER imports (flake8 safe)
+# Fix path BEFORE other imports (allowed here)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+from fastapi.testclient import TestClient
+from unittest.mock import MagicMock
 import main
+
 
 client = TestClient(main.app)
 
