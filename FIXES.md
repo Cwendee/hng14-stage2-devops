@@ -85,3 +85,9 @@ File: Dockerfiles
 Issue: Dockerfiles did not follow best practices (apt usage, caching, non-root execution)  
 Impact: Failed Hadolint checks in CI pipeline  
 Fix: Refactored Dockerfiles to use minimal layers, non-root user, and proper package installation
+
+15.
+File: CI Pipeline (ci.yml)  
+Issue: Hadolint failed due to non-existent frontend/Dockerfile  
+Impact: CI pipeline failed during Dockerfile lint stage  
+Fix: Removed frontend/Dockerfile from hadolint check

@@ -56,4 +56,4 @@ jobs:
           dockerfile: |
             api/Dockerfile
             worker/Dockerfile
-            frontend/Dockerfile
+            
