@@ -157,3 +157,13 @@ jobs:
       - name: Shutdown stack
         if: always()
         run: docker compose down
+
+      # -------------------------
+      # DEPLOY (Rolling Update)
+      # -------------------------
+      - name: Deploy update
+        run: |
+          docker compose pull || true
+          docker compose up -d --no-deps --build api
+          sleep 5
+          docker compose up -d --no-deps --build worker
