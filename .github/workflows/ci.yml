@@ -30,6 +30,18 @@ jobs:
           flake8 api worker
 
       # -------------------------
+      # TEST STAGE (pytest)
+      # -------------------------
+      - name: Install test dependencies
+        run: |
+          pip install pytest httpx
+
+      - name: Run API tests
+        run: |
+          cd api
+          pytest --maxfail=1 --disable-warnings -q
+
+      # -------------------------
       # Node.js + ESLint
       # -------------------------
       - name: Set up Node.js
